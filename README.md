@@ -1,11 +1,11 @@
-# Faros Writer
+# Faros AI Writer
 
-This repository is a simple typescript project that can help you get started writing arbitrary data to Faros!
+This repository is a simple typescript project that can help you get started writing arbitrary data to Faros AI!
 
 ## Usage
 
 1. Clone the repository
-1. Make any changes that you would like to the models that will be uploaded to Faros
+1. Make any changes that you would like to the models that will be uploaded to Faros AI
 1. Build the project
 
     ```sh
@@ -29,7 +29,7 @@ This repository is a simple typescript project that can help you get started wri
     npm run debug
     ```
 
-    The command above will print to the console the mutations that it would write. When you are ready to send the data to Faros execute:
+    The command above will print the mutations it would write to the console. When you are ready to send the data to Faros AI execute:
 
     ```sh
     npm run send
