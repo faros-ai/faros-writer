@@ -21,7 +21,7 @@ function getUid(row) {
   return row['Severity'] + '-' + row['Impact Window'];
 }
 
-function getEndDate(startDateStr, endDateStr) {
+function getEndDateFromImpactWindow(startDateStr, endDateStr) {
   // Original date object
   const originalDate = new Date(startDateStr);
 
@@ -39,13 +39,13 @@ function getEndDate(startDateStr, endDateStr) {
   return updatedDate;
 }
 
-function getStartEndDates(str) {
+function getStartEndDatesFromImpactWindow(str) {
   if (str.includes('→')) {
     const [startDateStr, endDateStr] = str.split('→').map(s => s.trim());
     const start = new Date(startDateStr);
     let end;
     if (/^\d{1,2}:\d{2}$/.test(endDateStr)) {
-      end = getEndDate(startDateStr, endDateStr);
+      end = getEndDateFromImpactWindow(startDateStr, endDateStr);
     } else {
       // Parse the end date
       end = new Date(endDateStr);
@@ -57,24 +57,52 @@ function getStartEndDates(str) {
   return { start: new Date(str), end: null };
 }
 
+function getTimeStamps(row) {
+  const { start: impactWindowStart, end: impactWindowEnd } = getStartEndDatesFromImpactWindow(row['Impact Window']);
+
+  const startedAt = row['Impact Start'] ? new Date(row['Impact Start']): impactWindowStart ? impactWindowStart : null
+  const resolvedAt = row['Resolution'] ? new Date(row['Resolution']): impactWindowEnd ? impactWindowEnd : null
+  const acknowledgedAt = row['Detection'] ? new Date(row['Detection']) : null
+  const createdAt = row['Root Cause'] ? new Date(row['Root Cause']) : null
+  const updatedAt = row['Status Page'] ? new Date(row['Status Page']) : null
+
+  return { startedAt, resolvedAt, acknowledgedAt, createdAt, updatedAt };
+}
+
 async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
   // The QueryBuilder manages the origin for you
   const qb = new QueryBuilder(origin);
 
   // EXAMPLE 2: Iterate across all rows in a CSV file, yielding mutations...
-  for await (const row of csvReadRows('../resources/incidents.csv')) {
-    const {start, end} = getStartEndDates(row['Impact Window']);
+  for await (const row of csvReadRows('../resources/incidents-v2.csv')) {
+    const { startedAt, resolvedAt, acknowledgedAt, createdAt, updatedAt } = getTimeStamps(row);
 
     const ims_Incident = {
       uid: getUid(row),
       severity: row.Severity,
       status: row.Status,
-      startedAt: start.toUTCString(),
       url: row['Asana Link'],
+      description: `Tags: ${row['Tags']} | Owner: ${row['Owner']} | Resolvers: ${row['Resolvers']}`
     };
 
-    if (end !== null) {
-      ims_Incident['resolvedAt'] = end.toUTCString();
+    if (startedAt) {
+      ims_Incident['startedAt'] = startedAt?.toUTCString();
+    }
+
+    if (resolvedAt) {
+      ims_Incident['resolvedAt'] = resolvedAt?.toUTCString();
+    }
+
+    if (acknowledgedAt) {
+      ims_Incident['acknowledgedAt'] = acknowledgedAt?.toUTCString();
+    }
+
+    if (createdAt) {
+      ims_Incident['createdAt'] = createdAt?.toUTCString();
+    }
+
+    if (updatedAt) {
+      ims_Incident['updatedAt'] = updatedAt?.toUTCString();
     }
 
     yield qb.upsert({ims_Incident});
