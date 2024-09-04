@@ -8,7 +8,9 @@
     "send-sevs": "FAROS_DEBUG=false ts-node src/sevs.ts",
     "debug-sevs": "FAROS_DEBUG=true ts-node src/sevs.ts",
     "send-onpoint": "FAROS_DEBUG=false ts-node src/onpoint.ts",
-    "debug-onpoint": "FAROS_DEBUG=true ts-node src/onpoint.ts"
+    "debug-onpoint": "FAROS_DEBUG=true ts-node src/onpoint.ts",
+    "send-helpdesk": "FAROS_DEBUG=false ts-node src/helpdesk.ts",
+    "debug-helpdesk": "FAROS_DEBUG=true ts-node src/helpdesk.ts"
   },
   "keywords": [],
   "author": "“Will Marks” <“will@faros.ai”>",
