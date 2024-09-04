@@ -5,8 +5,10 @@
   "main": "lib/",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "send": "FAROS_DEBUG=false ts-node src/index.ts",
-    "debug": "FAROS_DEBUG=true ts-node src/index.ts"
+    "send-sevs": "FAROS_DEBUG=false ts-node src/sevs.ts",
+    "debug-sevs": "FAROS_DEBUG=true ts-node src/sevs.ts",
+    "send-onpoint": "FAROS_DEBUG=false ts-node src/onpoint.ts",
+    "debug-onpoint": "FAROS_DEBUG=true ts-node src/onpoint.ts"
   },
   "keywords": [],
   "author": "“Will Marks” <“will@faros.ai”>",
