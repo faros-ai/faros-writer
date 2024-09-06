@@ -6,7 +6,9 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "send": "FAROS_DEBUG=false ts-node src/index.ts",
-    "debug": "FAROS_DEBUG=true ts-node src/index.ts"
+    "debug": "FAROS_DEBUG=true ts-node src/index.ts",
+    "send-hardware": "FAROS_DEBUG=false ts-node src/index.ts",
+    "debug-hardware": "FAROS_DEBUG=true ts-node src/index.ts"
   },
   "keywords": [],
   "author": "“Will Marks” <“will@faros.ai”>",

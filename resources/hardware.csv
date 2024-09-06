@@ -1,0 +1,62 @@
+ID,Name,Email,Title,Level,Role,Parent Team,Parent Team Name,Machine,Start,End
+6e8a35efddd410b3fbd18fada755d5db4a44226d,Albus Dumbledore,albus@dm.com,CTO,7,Engineering,all_teams,all_teams,M1,1/1/2021,2/3/2023
+919b51e1246776b0a5351fb1d69cdb758a752a32,Dolores Umbridge,dolores@dm.com,Eng Director,4,Engineering,browser,Browser,M3,2/4/2023,1/1/2100
+cb83e7b6cd29fa1f3bb79edc74eb2de77914a85a,Fleur Delacour,fleur@dm.com,SWE,1,Engineering,browser,Browser,M3,2/4/2023,1/1/2100
+e9d8d80beae967d12ac6d886d356fdca1df681f2,Pomona Sprout,pomona@dm.com,Staff SWE,3,Developer,browser,Browser,M3,2/4/2023,1/1/2100
+919b51e1246776b0a5351fb1d69cdb758a752a32,Dolores Umbridge,dolores@dm.com,Eng Director,4,Engineering,browser,Browser,M1,1/1/2021,2/3/2023
+cb83e7b6cd29fa1f3bb79edc74eb2de77914a85a,Fleur Delacour,fleur@dm.com,SWE,1,Engineering,browser,Browser,M1,1/1/2021,2/3/2023
+e9d8d80beae967d12ac6d886d356fdca1df681f2,Pomona Sprout,pomona@dm.com,Staff SWE,3,Developer,browser,Browser,M1,1/1/2021,2/3/2023
+cb61f860375879116148db6253c00259d92cad20,Padma Patil,padma@dm.com,SWE,1,Engineering,chat,Chat,M2,1/1/2021,1/1/2100
+a0dffe6f1a6a6c3937b6b8992e946234b12e7a29,Lavender Brown,lavender@dm.com,Principal SWE,4,Product Manager,chat,Chat,M2,1/1/2021,1/1/2100
+11c321e3fb6521451a1ce0e945389ce2ecd8384b,Fred Weasley,fred@dm.com,Eng Manager,3,Engineering,chat,Chat,M2,1/1/2021,1/1/2100
+4baf90abe838038d59477ebeb511331a025c1c1e,Peter Pettigrew,peter@dm.com,Staff SWE,3,Developer,chat,Chat,M2,1/1/2021,1/1/2100
+b38fa411cdc6e05c1493d926aa6fc28d13e54f3e,Severus Snape,severus@dm.com,Eng VP,6,Engineering,cloud,Cloud,M1,1/1/2021,1/1/2100
+9752ad3c93c53f488e775a3375e24d1d43aada94,Alastor Moody,alastor@dm.com,Eng Director,4,Engineering,collaboration,Collaboration,M1,1/1/2021,1/1/2100
+dd4516e5fd701748174c5051038cc9e1003696b8,Hermione Granger,hermione@dm.com,Senior Director,5,Developer,consumer,Consumer,M1,1/1/2021,1/1/2100
+c50323da07dd4ae492d3200627aab2cd9307a70b,Percy Weasley,percy@dm.com,Principal SWE,4,Engineering,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+92c7edf4e66dcfd179cd00183ff888fc0b772bea,Petunia Dursley,petunia@dm.com,Staff SWE,3,Engineering,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+7f58cd586bf63a10401829457b6878bc8db65507,Vincent Crabbe,vincent@dm.com,Principal SWE,4,Engineering,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+886bce535d4a52efabcc85dbbb1af2225101be07,Nymphadora Tonks,nymphadora@dm.com,Eng Manager,3,Engineering,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+6f39dd73032d23d0b1fe283701956a2bb12182ea,Ginny Weasley,ginny@dm.com,SWE,1,Product Manager,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+3bd7d87c4de970cbc20936ea5991e3278ef069c0,Katie Bell,katie@dm.com,Senior SWE,2,Engineering,consumer-goods,Consumer Goods,M1,1/1/2021,1/1/2100
+5e7c033abd4807103350be566c81c2d3683dd06a,Draco Malfoy,draco@dm.com,Eng Director,4,Developer,crm,CRM,M1,1/1/2021,1/1/2100
+61c453f3627c66e5c49a5ee2560ec1afe949c758,Minerva McGonagall,minerva@dm.com,Eng VP,6,Developer,desktop,Desktop,M1,1/1/2021,1/1/2100
+4bb0fb4f9c0513ecdc8ac2027f0f84917908bbf9,Gilderoy Lockhart,gilderoy@dm.com,Principal SWE,4,QA,email,Email,M2,1/1/2021,1/1/2100
+fdfc42363067a8f8310a85a263bf7328802368cd,Parvati Patil,parvati@dm.com,Staff SWE,3,Engineering,email,Email,M2,1/1/2021,1/1/2100
+dffb60de98d9283f76f4268122cc3b2d4c7467bd,Terry Boot,terry@dm.com,Principal SWE,4,Developer,email,Email,M2,1/1/2021,1/1/2100
+5966bc31987e30c639dd6560ee70943364386b68,George Weasley,george@dm.com,Eng Manager,3,QA,email,Email,M2,1/1/2021,1/1/2100
+f286d3c1922f826cbe0c5ed6aadbd74c758f2964,Luna Lovegood,luna@dm.com,Senior Director,5,Product Manager,enterprise,Enterprise,M1,1/1/2021,1/1/2100
+50be5782dfaeeb28b870b6334ab81e698d87a59b,Vernon Dursley,vernon@dm.com,Staff SWE,3,Developer,financial-services,Financial Services,M1,1/1/2021,1/1/2100
+5a8d9a2cc618d37d58179421273b5bc2a6617fdd,Horace Slughorn,horace@dm.com,Staff SWE,3,QA,financial-services,Financial Services,M1,1/1/2021,1/1/2100
+d504485e44e844d28704a5dbfae37bb66e078a9b,Gregory Goyle,gregory@dm.com,Staff SWE,3,Engineering,financial-services,Financial Services,M1,1/1/2021,1/1/2100
+1c760b8e77840800b50b01afb02725d65e4c96b0,Bellatrix Lestrange,bellatrix@dm.com,Eng Manager,3,Engineering,financial-services,Financial Services,M1,1/1/2021,1/1/2100
+8d636998af48193cf78d87631854cf07f19aa2a3,Bill Weasley,bill@dm.com,Senior SWE,2,Engineering,games,Games,M3,2/4/2023,1/1/2100
+75cf2512d4a7bc41b78415bf62016c2c88565a87,Elphias Doge,elphias@dm.com,SWE,1,Developer,games,Games,M3,2/4/2023,1/1/2100
+7da80cbcc747e6b06f9b4c355a8b667c0172cf0f,Molly Weasley,molly@dm.com,Eng Director,4,Manager,games,Games,M3,2/4/2023,1/1/2100
+8d636998af48193cf78d87631854cf07f19aa2a3,Bill Weasley,bill@dm.com,Senior SWE,2,Engineering,games,Games,M1,1/1/2021,2/3/2023
+75cf2512d4a7bc41b78415bf62016c2c88565a87,Elphias Doge,elphias@dm.com,SWE,1,Developer,games,Games,M1,1/1/2021,2/3/2023
+7da80cbcc747e6b06f9b4c355a8b667c0172cf0f,Molly Weasley,molly@dm.com,Eng Director,4,Manager,games,Games,M1,1/1/2021,2/3/2023
+fde35cf115e4199b0ab406fada1e0a710d5b083d,Harry Potter,harry@dm.com,Eng Director,4,Engineering,industries,Industries,M1,1/1/2021,1/1/2100
+993295c2f94abc963a0460bdbf6a20a5d365ea6b,Helga Hufflepuff,helga@dm.com,Principal SWE,4,Developer,marketing,Marketing,M1,1/1/2021,1/1/2100
+4ebc5e6716f7d998f459ef5109197afde00453de,Ron Weasly,ron@dm.com,Eng Manager,3,QA,marketing,Marketing,M1,1/1/2021,1/1/2100
+f2184b0f2507de30c6a88538353dceae3a18b5a9,Cornelius Fudge,cornelius@dm.com,SWE,1,Developer,marketing,Marketing,M1,1/1/2021,1/1/2100
+1ab1e3870aa87307d6091ad2f25d64a6018f0252,Dudley Dursley,dudley@dm.com,Eng Director,4,Engineering,productivity,Productivity,M1,1/1/2021,1/1/2100
+608f4b1ba13cd20c9cc5588c7ecd903a5c930fe1,Lucius Malfoy,lucius@dm.com,Senior Director,5,Developer,products,Products,M1,1/1/2021,1/1/2100
+5efd136d506182254862808adf6e4e8bc916d2d8,Filius Flitwick,filius@dm.com,Principal SWE,4,Engineering,sales,Sales,M1,1/1/2021,1/1/2100
+922eef3e8f08913ce17380ef50514c86ee600ba2,Sirius Black,sirius@dm.com,Eng Manager,3,Engineering,sales,Sales,M1,1/1/2021,1/1/2100
+bfbf5042a14b5ccce70d959a87def59d8f8cfbe0,Neville Longbottom,neville@dm.com,Staff SWE,3,Developer,sales,Sales,M1,1/1/2021,1/1/2100
+44ad9c942a837b09759ee1c4eed538dc0de240a3,Cedric Diggory,cedric@dm.com,Senior SWE,2,Developer,sales,Sales,M1,1/1/2021,1/1/2100
+f399efd12dfe1045f37a605a297ab9a99bffcc71,Susan Bones,susan@dm.com,SWE,1,Developer,slideshow,Slideshow,M2,1/1/2021,1/1/2100
+99dc107041bd02a28e555b089a11985860fc06a0,Igor Karkaraoff,igor@dm.com,SWE,1,Developer,slideshow,Slideshow,M2,1/1/2021,1/1/2100
+a25a3fe38ef97a27d3bd33741b2a376b6d4a72df,Arthur Weasley,arthur@dm.com,SWE,1,Developer,spreadsheets,Spreadsheets,M2,1/1/2021,1/1/2100
+c47175104bbc846e52705d6f45c5e7f2db0737e2,Remus Lupin,remus@dm.com,Principal SWE,4,Developer,spreadsheets,Spreadsheets,M2,1/1/2021,1/1/2100
+6c017fc45fc9ae23112d13137ce7faba7e00f4ba,Seamus Finnigan,seamus@dm.com,SWE,1,Manager,spreadsheets,Spreadsheets,M2,1/1/2021,1/1/2100
+e1967ed49711a6dc5f3e5aaa9be87e469fca708b,Rita Skeeter,rita@dm.com,Senior Director,5,QA,tooling,Tooling,M3,2/4/2023,1/1/2100
+4ac132293b6937f081881b3c2e1e00623966a236,Cho Chang,cho@dm.com,SWE,1,Engineering,tooling,Tooling,M3,2/4/2023,1/1/2100
+3834ccd107ab3610eaaa2ea50004b18defef9427,Irma Pince,irma@dm.com,SWE,1,Engineering,tooling,Tooling,M3,2/4/2023,1/1/2100
+e1967ed49711a6dc5f3e5aaa9be87e469fca708b,Rita Skeeter,rita@dm.com,Senior Director,5,QA,tooling,Tooling,M1,1/1/2021,2/3/2023
+4ac132293b6937f081881b3c2e1e00623966a236,Cho Chang,cho@dm.com,SWE,1,Engineering,tooling,Tooling,M1,1/1/2021,2/3/2023
+3834ccd107ab3610eaaa2ea50004b18defef9427,Irma Pince,irma@dm.com,SWE,1,Engineering,tooling,Tooling,M1,1/1/2021,2/3/2023
+b4c8d10082ede5929e00ba1e3bb466fe061cc08f,Rubeus Hagrid,rubeus@dm.com,Principal SWE,4,Engineering,word-processing,Word Processing,M2,1/1/2021,1/1/2100
+e521c3985862c409b037a79ba31473815062f836,Viktor Krum,viktor@dm.com,Principal SWE,4,Engineering,word-processing,Word Processing,M2,1/1/2021,1/1/2100
+e8fe5c829e7b59a9cc1b1ede10b112f556ab97b8,Dobby,dobby@dm.com,Eng Manager,3,Engineering,word-processing,Word Processing,M2,1/1/2021,1/1/2100
