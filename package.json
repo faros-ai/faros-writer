@@ -5,10 +5,10 @@
   "main": "lib/",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "send": "FAROS_DEBUG=false ts-node src/index.ts",
-    "debug": "FAROS_DEBUG=true ts-node src/index.ts",
-    "send-hardware": "FAROS_DEBUG=false ts-node src/index.ts",
-    "debug-hardware": "FAROS_DEBUG=true ts-node src/index.ts"
+    "send-builds": "FAROS_DEBUG=false ts-node src/builds.ts",
+    "debug-builds": "FAROS_DEBUG=true ts-node src/builds.ts",
+    "send-hardware": "FAROS_DEBUG=false ts-node src/hardware.ts",
+    "debug-hardware": "FAROS_DEBUG=true ts-node src/hardware.ts"
   },
   "keywords": [],
   "author": "“Will Marks” <“will@faros.ai”>",
