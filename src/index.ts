@@ -8,85 +8,78 @@ import {
 import {csvReadRows, farosReadNodes} from './utils';
 
 const faros_api_url = process.env.FAROS_API_URL || 'https://prod.api.faros.ai';
-const faros_api_key = process.env.FAROS_API_KEY || '<key>';
+const faros_api_key_shared = process.env.FAROS_API_KEY_SHARED || '<key>';
+const faros_api_key_main = process.env.FAROS_API_KEY_MAIN || '<key>';
 const graph = process.env.FAROS_GRAPH || 'default';
 const origin = process.env.FAROS_ORIGIN || 'faros-writer';
 const maxBatchSize = Number(process.env.FAROS_BATCH_SIZE) || 500;
 const debug = (process.env.FAROS_DEBUG || 'true') === 'true';
 
-async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
-  // The QueryBuilder manages the origin for you
-  const qb = new QueryBuilder(origin);
-
-  // EXAMPLE 1: Construct your models manually, yielding mutations...
-  const compute_Application = {
-    name: '<application_name>',
-    platform: '<application_platform>',
-  };
-  const cicd_Deployment = {
-    uid: '<deployment_uid',
-    source: '<deployment_source>',
-    // Fields that reference another model need to be refs
-    application: qb.ref({compute_Application}),
-    status: {
-      category: 'Success',
-      detail: '<status_detail>',
-    },
-  };
-  // Yield mutations, Batching will be handled for you
-  yield qb.upsert({compute_Application});
-  yield qb.upsert({cicd_Deployment});
-
-  // EXAMPLE 2: Iterate across all rows in a CSV file, yielding mutations...
-  for await (const row of csvReadRows('../resources/example.csv')) {
-    const compute_Application = {
-      name: row.application,
-      platform: '',
-    };
-    const cicd_Deployment = {
-      uid: row.deployment_id,
-      source: row.deployment_source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: row.status,
-        detail: '',
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
-  }
-
-  // EXAMPLE 3: Iterate across a Faros graph query, yielding mutations...
-  const query = `
-  {
-    cicd_Deployment {
-      uid
-      source
-      application {
-        name
-        platform
-      }
-      status
+function getTeamId(farosMainNodesList, name) {
+  for (const node of farosMainNodesList) {
+    if (node.name === name) {
+      return node.id;
     }
   }
-  `;
-  const farosNodes = farosReadNodes(faros, graph, query);
-  for await (const node of farosNodes) {
-    const compute_Application = {
-      name: node.application.name,
-      platform: node.application.platform,
-    };
-    const cicd_Deployment = {
-      uid: node.uid,
-      source: node.source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: node.status.category,
-        detail: node.status.detail,
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
+  return null;
+}
+
+async function* mutations(farosShared: FarosClient, farosMain: FarosClient): AsyncGenerator<Mutation> {
+  const qb = new QueryBuilder(origin);
+
+  const farosSharedNodes = farosReadNodes(farosShared, graph, `
+  {
+    org_BoardOwnership {
+      board {
+        id
+        name
+        uid
+      }
+      team {
+        id
+        name
+        uid
+      }
+    }
+  }
+  `);
+
+  const farosSharedNodesList = [];
+  for await (const node of farosSharedNodes) {
+    farosSharedNodesList.push(node);
+  }
+
+  const farosMainNodes = farosReadNodes(farosMain, graph, `
+    {
+      org_Team {
+        uid
+        name
+        id
+        lead {
+          identity {
+            fullName
+          }
+        }
+      }
+    }
+  `);
+
+  const farosMainNodesList = [];
+  for await (const node of farosMainNodes) {
+    farosMainNodesList.push(node);
+  }
+
+  
+  for (const node of farosSharedNodesList) {
+    const teamId = getTeamId(farosMainNodesList, node.team.name);
+    if (teamId != null && node.board != null) {
+      const org_BoardOwnership = {
+        boardId: node.board.id,
+        teamId: teamId
+      };
+
+      yield qb.upsert({ org_BoardOwnership });
+    }
   }
 }
 
@@ -108,17 +101,21 @@ async function main(): Promise<void> {
   console.log(`Debug: ${debug ? 'Enabled' : 'Disabled'}`)
   console.log(`URL: ${faros_api_url}, Graph: ${graph}, Origin: ${origin}`);
 
-  const faros = new FarosClient({
+  const farosShared = new FarosClient({
     url: faros_api_url,
-    apiKey: faros_api_key,
+    apiKey: faros_api_key_shared,
+  });
+  const farosMain = new FarosClient({
+    url: faros_api_url,
+    apiKey: faros_api_key_main,
   });
 
   let batchNum = 1;
   let batch: Mutation[] = [];
-  for await (const mutation of mutations(faros)) {
+  for await (const mutation of mutations(farosShared, farosMain)) {
     if (batch.length >= maxBatchSize) {
       console.log(`------ Batch ${batchNum} - Size: ${batch.length} ------`);
-      await sendToFaros(faros, graph, batch);
+      await sendToFaros(farosMain, graph, batch);
       batchNum++;
       batch = [];
     }
@@ -127,7 +124,7 @@ async function main(): Promise<void> {
 
   if (batch.length > 0) {
     console.log(`------ Batch ${batchNum} - Size: ${batch.length} ------`);
-    await sendToFaros(faros, graph, batch);
+    await sendToFaros(farosMain, graph, batch);
   }
 }
 
