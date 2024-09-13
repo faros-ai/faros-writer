@@ -82,7 +82,8 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       severity: row.Severity,
       status: row.Status,
       url: row['Asana Link'],
-      description: `Tags: ${row['Tags']} | Owner: ${row['Owner']} | Resolvers: ${row['Resolvers']}`
+      description: `Tags: ${row['Tags']} | Owner: ${row['Owner']} | Resolvers: ${row['Resolvers']}`,
+      source: 'sev'
     };
 
     if (startedAt) {

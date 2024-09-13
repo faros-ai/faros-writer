@@ -28,6 +28,7 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       createdAt: row.created_at,
       title: row.title,
       description: row.content,
+      source: 'helpdesk'
     };
 
     yield qb.upsert({ims_Incident});

@@ -27,6 +27,7 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       priority: row.urgency,
       createdAt: row.created_at,
       resolvedAt: row.closed_at,
+      source: 'onpoint'
     };
 
     if (row.first_response_at !== '') {
