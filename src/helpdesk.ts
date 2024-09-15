@@ -35,7 +35,7 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
 
     if (row.category !== '') {
       const ims_Label = {
-        name: row.category
+        name: `category: ${row.category}`
       };
 
       yield qb.upsert({ims_Label});
@@ -50,7 +50,7 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
 
     if (row.subcategory !== '') {
       const ims_Label = {
-        name: row.subcategory
+        name: `subcategory: ${row.subcategory}`
       };
 
       yield qb.upsert({ims_Label});
@@ -64,19 +64,18 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
     }
 
     if (row.team !== '') {
-      const ims_Team = {
-        uid: row.team,
-        name: row.team
+      const ims_Label = {
+        name: `team: ${row.team}`
       };
 
-      yield qb.upsert({ims_Team});
+      yield qb.upsert({ims_Label});
 
-      const ims_TeamIncidentAssociation = {
-        team: qb.ref({ims_Team}),
-        incident: qb.ref({ims_Incident})
+      const ims_IncidentTag = {
+        incident: qb.ref({ims_Incident}),
+        label: qb.ref({ims_Label})
       };
-      
-      yield qb.upsert({ims_TeamIncidentAssociation});
+
+      yield qb.upsert({ims_IncidentTag});
     }
 
     if (row.assignee !== '') {
