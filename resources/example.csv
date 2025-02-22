@@ -1,2 +1,6 @@
-deployment_id,status,application,deployment_source
-1,Success,app_1,ECS
+metric,team,value,computedAt
+monthly-story-points,ne-fs-team1,45,Tue Feb 1 2025 00:00:00
+monthly-story-points,ne-fs-team1,56,Tue Jan 1 2025 00:00:00
+monthly-story-points,ne-fs-team1,49,Tue Dec 1 2024 00:00:00
+monthly-story-points,ne-fs-team1,51,Tue Nov 1 2024 00:00:00
+monthly-story-points,ne-fs-team1,50,Tue Oct 1 2024 00:00:00

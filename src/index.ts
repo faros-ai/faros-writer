@@ -9,7 +9,7 @@ import {csvReadRows, farosReadNodes} from './utils';
 
 const faros_api_url = process.env.FAROS_API_URL || 'https://prod.api.faros.ai';
 const faros_api_key = process.env.FAROS_API_KEY || '<key>';
-const graph = process.env.FAROS_GRAPH || 'default';
+const graph = process.env.FAROS_GRAPH || 'control-tower';
 const origin = process.env.FAROS_ORIGIN || 'faros-writer';
 const maxBatchSize = Number(process.env.FAROS_BATCH_SIZE) || 500;
 const debug = (process.env.FAROS_DEBUG || 'true') === 'true';
@@ -18,75 +18,92 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
   // The QueryBuilder manages the origin for you
   const qb = new QueryBuilder(origin);
 
-  // EXAMPLE 1: Construct your models manually, yielding mutations...
-  const compute_Application = {
-    name: '<application_name>',
-    platform: '<application_platform>',
-  };
-  const cicd_Deployment = {
-    uid: '<deployment_uid',
-    source: '<deployment_source>',
-    // Fields that reference another model need to be refs
-    application: qb.ref({compute_Application}),
-    status: {
-      category: 'Success',
-      detail: '<status_detail>',
+  const faros_MetricDefinition = {
+    uid: 'monthly-story-points',
+    name: 'Monthly Story Points',
+    description: 'The number of story points delivered in a specific calendar month',
+    valueType: {
+      category: 'Numeric',
     },
+    scorecardCompatible: true,
   };
-  // Yield mutations, Batching will be handled for you
-  yield qb.upsert({compute_Application});
-  yield qb.upsert({cicd_Deployment});
+  yield qb.upsert({faros_MetricDefinition});
 
-  // EXAMPLE 2: Iterate across all rows in a CSV file, yielding mutations...
+  const faros_MetricThresholdGroup = {
+    uid: 'monthly-story-points-threshold-group',
+    name: 'Monthly Story Points Threshold Group',
+    definition: qb.ref({faros_MetricDefinition}),
+  }
+  yield qb.upsert({faros_MetricThresholdGroup});
+
+  const faros_MetricThreshold_low = {
+    uid: 'monthly-story-points-threshold-low',
+    name: 'Monthly Story Points Threshold (Low)',
+    lower: '0',
+    upper: '20',
+    rating: {
+      category: 'low',
+    },
+    thresholdGroup: qb.ref({faros_MetricThresholdGroup}),
+  }
+  yield qb.upsert({faros_MetricThreshold:faros_MetricThreshold_low});
+
+  const faros_MetricThreshold_medium = {
+    uid: 'monthly-story-points-threshold-medium',
+    name: 'Monthly Story Points Threshold (Medium)',
+    lower: '20',
+    upper: '40',
+    rating: {
+      category: 'medium',
+    },
+    thresholdGroup: qb.ref({faros_MetricThresholdGroup}),
+  }
+  yield qb.upsert({faros_MetricThreshold:faros_MetricThreshold_medium});
+
+  const faros_MetricThreshold_high = {
+    uid: 'monthly-story-points-threshold-high',
+    name: 'Monthly Story Points Threshold (High)',
+    lower: '40',
+    rating: {
+      category: 'high',
+    },
+    thresholdGroup: qb.ref({faros_MetricThresholdGroup}),
+  }
+  yield qb.upsert({faros_MetricThreshold:faros_MetricThreshold_high});
+
+  const faros_Tag = {
+    key: 'Threshold Group',
+    uid: 'default-monthly-story-points-thresholds',
+    value: 'Default',
+  }
+  yield qb.upsert({faros_Tag});
+
+  const org_TeamTag = {
+    tag: qb.ref({faros_Tag}),
+    team: qb.ref({ org_Team: { uid: 'all_teams' } }),
+  }
+  yield qb.upsert({org_TeamTag});
+
   for await (const row of csvReadRows('../resources/example.csv')) {
-    const compute_Application = {
-      name: row.application,
-      platform: '',
-    };
-    const cicd_Deployment = {
-      uid: row.deployment_id,
-      source: row.deployment_source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: row.status,
-        detail: '',
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
-  }
-
-  // EXAMPLE 3: Iterate across a Faros graph query, yielding mutations...
-  const query = `
-  {
-    cicd_Deployment {
-      uid
-      source
-      application {
-        name
-        platform
-      }
-      status
+    const org_Team = {
+      uid: row.team
     }
-  }
-  `;
-  const farosNodes = farosReadNodes(faros, graph, query);
-  for await (const node of farosNodes) {
-    const compute_Application = {
-      name: node.application.name,
-      platform: node.application.platform,
+
+    const faros_MetricValue = {
+      definition: qb.ref({faros_MetricDefinition}),
+      value: row.value,
+      computedAt: row.computedAt,
+      uid: `${row.team}-${row.computedAt}`,
     };
-    const cicd_Deployment = {
-      uid: node.uid,
-      source: node.source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: node.status.category,
-        detail: node.status.detail,
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
+
+    const org_TeamMetric = {
+      team: qb.ref({org_Team}),
+      value: qb.ref({faros_MetricValue}),
+    }
+    
+    yield qb.upsert({org_Team});
+    yield qb.upsert({faros_MetricValue});
+    yield qb.upsert({org_TeamMetric});
   }
 }
 

@@ -4,3 +4,4 @@ out/
 .vscode/
 .idea/
 package-lock.json
+.env
