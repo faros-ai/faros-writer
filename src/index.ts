@@ -23,11 +23,22 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
   const qb = new QueryBuilder(origin);
 
   for await (const row of csvReadRows('../resources/ai-tokens.csv')) {
+    const identity_Identity = {
+      uid: row.Username,
+    }
+    yield qb.upsert({identity_Identity});
+
+
     const vcs_User = {
-      uid: row.Username
+      uid: row.Username,
     }
     yield qb.upsert({vcs_User});
 
+    const vcs_UserIdentity = {
+      identity: qb.ref({identity_Identity}),
+      vcsUser: qb.ref({vcs_User}),
+    }
+    yield qb.upsert({vcs_UserIdentity});
 
     const vcs_Team = {
       uid: projectToTeam[row['Project Name']] || row['Project Name'],
