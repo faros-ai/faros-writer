@@ -45,7 +45,7 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
     }
     yield qb.upsert({vcs_Team});
 
-    const vcs_AssistantMetric = {
+    const vcs_AssistantMetricRequestDWPromptTokens = {
       uid: `${row.Date}-${row.Username}-RequestDWPromptTokens`,
       value: row.RequestDWPromptTokens,
       startedAt: row.Date,
@@ -53,7 +53,17 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       user: qb.ref({vcs_User}),
       team: qb.ref({vcs_Team}),
     };
-    yield qb.upsert({vcs_AssistantMetric});
+    yield qb.upsert({vcs_AssistantMetric: vcs_AssistantMetricRequestDWPromptTokens});
+
+    const vcs_AssistantMetricRequestDWCompletionTokens = {
+      uid: `${row.Date}-${row.Username}-RequestDWCompletionTokens`,
+      value: row.RequestDWCompletionTokens,
+      startedAt: row.Date,
+      endedAt: row.Date,
+      user: qb.ref({vcs_User}),
+      team: qb.ref({vcs_Team}),
+    };
+    yield qb.upsert({vcs_AssistantMetric: vcs_AssistantMetricRequestDWCompletionTokens});
   }
 }
 
