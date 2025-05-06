@@ -16,6 +16,8 @@ const debug = (process.env.FAROS_DEBUG || 'true') === 'true';
 
 const projectToTeam = {
   'AI POD': 'team-uid',
+  'PROJECT 2': 'team-uid2',
+  'PROJECT 3': 'team-uid3',
 }
 
 async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
@@ -52,6 +54,12 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       endedAt: row.Date,
       user: qb.ref({vcs_User}),
       team: qb.ref({vcs_Team}),
+      valueType: 'Numeric',
+      type: {
+        category: 'Custom',
+        detail: 'RequestDWPromptTokens',
+      },
+      source: 'Enterprise AI',
     };
     yield qb.upsert({vcs_AssistantMetric: vcs_AssistantMetricRequestDWPromptTokens});
 
@@ -62,6 +70,12 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       endedAt: row.Date,
       user: qb.ref({vcs_User}),
       team: qb.ref({vcs_Team}),
+      valueType: 'Numeric',
+      type: {
+        category: 'Custom',
+        detail: 'RequestDWCompletionTokens',
+      },
+      source: 'Enterprise AI',
     };
     yield qb.upsert({vcs_AssistantMetric: vcs_AssistantMetricRequestDWCompletionTokens});
   }
