@@ -4,6 +4,8 @@ import {
   Mutation,
   QueryBuilder,
 } from 'faros-js-client';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
 import {csvReadRows, farosReadNodes} from './utils';
 
@@ -31,6 +33,60 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       uid: 'unassigned',
     },
   };
+
+  // Mapping between PullRequestId (UUID) and actual PR number
+  const prIdToNumberMapping: Record<string, number> = {};
+  const mappingFile = path.join(__dirname, '../pr_id_mapping.json');
+
+  // Process pull request summary data FIRST to build the mapping
+  console.log('Processing pull request summary data to build PR ID mapping...');
+  let summaryCount = 0;
+  for await (const row of csvReadRows('../resources/pullrequest_summary_sample.csv')) {
+    if (recordLimit > 0 && summaryCount >= recordLimit) break;
+    summaryCount++;
+    
+    // Extract PR number from URL
+    const urlMatch = row.Url.match(/\/pull\/(\d+)$/);
+    if (!urlMatch) {
+      console.warn(`Could not extract PR number from URL: ${row.Url}`);
+      continue;
+    }
+    const prNumber = Number(urlMatch[1]);
+    
+    // Save mapping
+    prIdToNumberMapping[row.PullRequestId] = prNumber;
+    
+    // Create repository
+    const vcs_Repository = {
+      name: row.RepositoryName,
+      fullName: row.RepositoryName,
+      htmlUrl: row.Url,
+    };
+    yield qb.upsert({vcs_Repository});
+
+    // Create pull request
+    const vcs_PullRequest = {
+      number: prNumber,
+      htmlUrl: row.Url,
+      title: `PR #${row.PullRequestId}`,
+      state: row.Status === 'completed' ? 'closed' : 'open',
+      createdAt: row.CreationDate,
+      updatedAt: row.PublishedDate,
+      mergedAt: row.MergeStatus === 'succeeded' && row.ClosedDate && row.ClosedDate.trim() !== '' ? row.ClosedDate : null,
+      commentCount: Number(row.TotalCommentCount) || 0,
+      commitCount: 0,
+      diffStats: {
+        filesChanged: Number(row.FileChangeCount) || 0,
+      },
+      repository: qb.ref({vcs_Repository}),
+    };
+    yield qb.upsert({vcs_PullRequest});
+  }
+
+  // Write mapping to file
+  console.log(`Writing PR ID mapping to ${mappingFile}...`);
+  await fs.writeJson(mappingFile, prIdToNumberMapping, { spaces: 2 });
+  console.log(`Mapped ${Object.keys(prIdToNumberMapping).length} pull requests`);
 
   // Process pull request contributor data
   console.log('Processing pull request contributor data...');
@@ -134,14 +190,21 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
     };
     yield qb.upsert({vcs_Repository});
 
-    // Update pull request with author if this is the author
-    const prNumber = Number(row.PullRequestId);
-    // Skip if PR number is too large (exceeds int32 max: 2147483647)
-    if (prNumber > 2147483647) {
-      console.warn(`Skipping PR reference ${row.PullRequestId} - number exceeds integer bounds`);
-      continue;
+    // Get the actual PR number from mapping, or use the ID directly if numeric
+    let prNumber = prIdToNumberMapping[row.PullRequestId];
+    if (!prNumber) {
+      // If not in mapping, check if it's already a numeric ID
+      const numericId = Number(row.PullRequestId);
+      if (!isNaN(numericId) && numericId > 0) {
+        prNumber = numericId;
+        console.log(`Using numeric PullRequestId directly: ${row.PullRequestId}`);
+      } else {
+        console.warn(`No PR number mapping found for PullRequestId: ${row.PullRequestId} - skipping`);
+        continue;
+      }
     }
     
+    // Update pull request with author if this is the author
     if (row.IsAuthor === '1') {
       const vcs_PullRequest = {
         number: prNumber,
@@ -166,45 +229,6 @@ async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
       };
       yield qb.upsert({vcs_PullRequestReview});
     }
-  }
-
-  // Process pull request summary data
-  console.log('Processing pull request summary data...');
-  let summaryCount = 0;
-  for await (const row of csvReadRows('../resources/pullrequest_summary_sample.csv')) {
-    if (recordLimit > 0 && summaryCount >= recordLimit) break;
-    summaryCount++;
-    // Create repository
-    const vcs_Repository = {
-      name: row.RepositoryName,
-      fullName: row.RepositoryName,
-      htmlUrl: row.Url,
-    };
-    yield qb.upsert({vcs_Repository});
-
-    // Create pull request
-    const prNumber = Number(row.PullRequestId);
-    // Skip if PR number is too large (exceeds int32 max: 2147483647)
-    if (prNumber > 2147483647) {
-      console.warn(`Skipping PR ${row.PullRequestId} - number exceeds integer bounds`);
-      continue;
-    }
-    const vcs_PullRequest = {
-      number: prNumber,
-      htmlUrl: row.Url,
-      title: `PR #${row.PullRequestId}`,
-      state: row.Status === 'completed' ? 'closed' : 'open',
-      createdAt: row.CreationDate,
-      updatedAt: row.PublishedDate,
-      mergedAt: row.MergeStatus === 'succeeded' && row.ClosedDate && row.ClosedDate.trim() !== '' ? row.ClosedDate : null,
-      commentCount: Number(row.TotalCommentCount) || 0,
-      commitCount: 0,
-      diffStats: {
-        filesChanged: Number(row.FileChangeCount) || 0,
-      },
-      repository: qb.ref({vcs_Repository}),
-    };
-    yield qb.upsert({vcs_PullRequest});
   }
 }
 
