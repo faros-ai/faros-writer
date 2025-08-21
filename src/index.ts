@@ -17,82 +17,102 @@ const debug = (process.env.FAROS_DEBUG || 'true') === 'true';
 async function* mutations(faros: FarosClient): AsyncGenerator<Mutation> {
   // The QueryBuilder manages the origin for you
   const qb = new QueryBuilder(origin);
-
-  // EXAMPLE 1: Construct your models manually, yielding mutations...
-  const compute_Application = {
-    name: '<application_name>',
-    platform: '<application_platform>',
-  };
-  const cicd_Deployment = {
-    uid: '<deployment_uid',
-    source: '<deployment_source>',
-    // Fields that reference another model need to be refs
-    application: qb.ref({compute_Application}),
-    status: {
-      category: 'Success',
-      detail: '<status_detail>',
-    },
-  };
-  // Yield mutations, Batching will be handled for you
-  yield qb.upsert({compute_Application});
-  yield qb.upsert({cicd_Deployment});
-
-  // EXAMPLE 2: Iterate across all rows in a CSV file, yielding mutations...
-  for await (const row of csvReadRows('../resources/example.csv')) {
-    const compute_Application = {
-      name: row.application,
-      platform: '',
-    };
-    const cicd_Deployment = {
-      uid: row.deployment_id,
-      source: row.deployment_source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: row.status,
-        detail: '',
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
-  }
-
-  // EXAMPLE 3: Iterate across a Faros graph query, yielding mutations...
-  const query = `
+ 
+  // First, query all teams with their parent relationships
+  const teamsQuery = `
   {
-    cicd_Deployment {
+    org_Team {
       uid
-      source
-      application {
-        name
-        platform
+      name
+      parentTeam {
+        uid
       }
-      status
     }
   }
   `;
-  const farosNodes = farosReadNodes(faros, graph, query);
-  for await (const node of farosNodes) {
-    const compute_Application = {
-      name: node.application.name,
-      platform: node.application.platform,
-    };
-    const cicd_Deployment = {
-      uid: node.uid,
-      source: node.source,
-      application: qb.ref({compute_Application}),
-      status: {
-        category: node.status.category,
-        detail: node.status.detail,
-      },
-    };
-    yield qb.upsert({compute_Application});
-    yield qb.upsert({cicd_Deployment});
+  
+  // Then query existing parent team tags
+  const tagsQuery = `
+  {
+    org_TeamTag {
+      team {
+        uid
+      }
+      tag {
+        uid
+        key
+        value
+      }
+    }
+  }
+  `;
+  
+  // Build a map of team UIDs to their latest parent team tags
+  const teamTagsMap = new Map<string, any>();
+  const tagNodes = farosReadNodes(faros, graph, tagsQuery);
+  for await (const teamTag of tagNodes) {
+    if (teamTag.tag?.key === 'parent_team_uid') {
+      const teamUid = teamTag.team.uid;
+      const existingTag = teamTagsMap.get(teamUid);
+      
+      // Extract timestamp from tag UID (format: parent-team-{teamUid}-{timestamp})
+      const getTimestampFromUid = (uid: string) => {
+        const parts = uid.split('-');
+        const timestamp = parts[parts.length - 1];
+        return new Date(timestamp).getTime();
+      };
+      
+      // Keep only the latest tag based on timestamp in UID
+      if (!existingTag || getTimestampFromUid(teamTag.tag.uid) > getTimestampFromUid(existingTag.uid)) {
+        teamTagsMap.set(teamUid, teamTag.tag);
+      }
+    }
+  }
+  
+  // Now process teams and create tags only when needed
+  const teamNodes = farosReadNodes(faros, graph, teamsQuery);
+  for await (const team of teamNodes) {
+    // Only process if the team has a parent
+    if (team.parentTeam?.uid) {
+      const currentParentUid = team.parentTeam.uid;
+      const latestTag = teamTagsMap.get(team.uid);
+      
+      // Only create a new tag if parent has changed or no tag exists
+      const shouldCreateNewTag = !latestTag || latestTag.value !== currentParentUid;
+      
+      // Only create a new tag if parent has changed or no tag exists
+      if (shouldCreateNewTag) {
+        const currentTimestamp = new Date().toISOString();
+        
+        // Create a Faros tag with parent team UID as value
+        const faros_Tag = {
+          // Include timestamp in UID to track parent changes over time
+          uid: `parent-team-${team.uid}-${currentTimestamp}`,
+          key: 'parent_team_uid',
+          value: currentParentUid,
+        };
+        
+        // Reference to the team this tag belongs to
+        const org_Team = {
+          uid: team.uid,
+        };
+        
+        // Create the association between team and tag
+        const org_TeamTag = {
+          team: qb.ref({org_Team}),
+          tag: qb.ref({faros_Tag}),
+        };
+        
+        yield qb.upsert({faros_Tag});
+        yield qb.upsert({org_TeamTag});
+      }
+    }
   }
 }
 
 async function sendToFaros(
   faros: FarosClient,
-  graph,
+  graph: string,
   batch: Mutation[]
 ): Promise<void> {
   if (debug) {
